@@ -42,10 +42,10 @@ A comunicação é **totalmente textual**, inspirada no protocolo CNET: cada men
 ```
 gabio-client/
 ├── src/
-│   ├── gbtp-protocol.ts   # Serialização, parsing e validação do protocolo (Wesley)
-│   ├── App.tsx            # Componente principal do formulário (Ana)
-│   └── main.ts            # Inicialização e conexão WebSocket
-├── index.html
+│   ├── protocol.ts        # Serialização, parsing e validação do protocolo (Wesley)
+│   └── main.ts            # Inicialização e conexão WebSocket (Nilson)
+├── index.html             # Interface principal do cliente (Ana)
+├── style.css              # Estilização da interface (Ana)
 ├── package.json
 ├── tsconfig.json
 └── README.md              # Este arquivo (Wesley)
@@ -194,14 +194,14 @@ BALANCE:225.00
 
 ## Módulo de Serialização e Parser
 
-O arquivo `src/gbtp-protocol.ts` centraliza toda a lógica de comunicação com o protocolo. Ele expõe funções puras e tipadas, sem dependências externas.
+O arquivo `src/protocol.ts` centraliza toda a lógica de comunicação com o protocolo. Ele expõe funções puras e tipadas, sem dependências externas.
 
 ### `serializeRequest`
 
 Converte os dados do formulário (objeto `GBTPRequest`) na string de protocolo exata, pronta para envio via WebSocket.
 
 ```typescript
-import { serializeRequest } from "./gbtp-protocol";
+import { serializeRequest } from "./protocol";
 
 const mensagem = serializeRequest({
   operation: "DEPOSIT",
@@ -240,7 +240,7 @@ function serializeRequest(req: GBTPRequest): string
 Recebe a string bruta retornada pelo servidor e extrai `STATUS`, `MESSAGE` e `BALANCE` em um objeto tipado `GBTPResponse`.
 
 ```typescript
-import { parseResponse } from "./gbtp-protocol";
+import { parseResponse } from "./protocol";
 
 const resposta = parseResponse(
   "STATUS:OK\nMESSAGE:Saldo consultado com sucesso\nBALANCE:250.00"
@@ -297,7 +297,7 @@ As seguintes validações são feitas por `serializeRequest` **antes** de enviar
 ### Conexão e envio via WebSocket
 
 ```typescript
-import { serializeRequest, parseResponse, isSuccess, formatBalance } from "./gbtp-protocol";
+import { serializeRequest, parseResponse, isSuccess, formatBalance } from "./protocol";
 
 const ws = new WebSocket("ws://localhost:8080");
 
