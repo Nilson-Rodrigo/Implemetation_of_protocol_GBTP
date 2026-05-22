@@ -13,10 +13,6 @@
         <aside class="sidebar">
             <div class="sidebar-title">Gábio Bank</div>
             <div class="sidebar-sub">Gabio Bank Transaction Protocol</div>
-            <nav class="nav">
-                <div class="nav-item active">Transações</div>
-                <div class="nav-item">Saldo</div>
-            </nav>
         </aside>
 
         <!-- Conteúdo principal -->
@@ -37,15 +33,15 @@
                     </select>
                 </div>
 
-                <div class="row">
-                    <div class="field">
-                        <label for="accountId">ID da Conta</label>
-                        <input type="text" id="accountId" placeholder="Ex: 1001">
-                    </div>
-                    <div class="field">
-                        <label for="value">Valor (R$)</label>
-                        <input type="number" id="value" placeholder="0.00" value="0" min="0" step="0.01">
-                    </div>
+                <div class="field">
+                    <label for="accountId">ID da Conta</label>
+                    <input type="text" id="accountId" placeholder="Ex: 1001">
+                </div>
+
+                <!-- Campo valor: escondido em BALANCE -->
+                <div class="field" id="valueGroup">
+                    <label for="value">Valor (R$)</label>
+                    <input type="number" id="value" placeholder="0.00" value="0" min="0" step="0.01">
                 </div>
 
                 <!-- Campo destino: só aparece em Transferência -->
@@ -80,21 +76,23 @@
         </main>
     </div>
 
-    <!-- Script compilado do TypeScript -->
     <script src="dist/main.js" type="module"></script>
 
-    <!-- Mostrar/esconder campo destino -->
     <script>
-        // Esconde o campo destino por padrão
-        document.getElementById('toAccountGroup').style.display = 'none';
+        const operationSelect = document.getElementById('operation');
+        const toAccountGroup = document.getElementById('toAccountGroup');
+        const valueGroup = document.getElementById('valueGroup');
 
-        // Mostra só quando a operação for TRANSFER
-        document.getElementById('operation').addEventListener('change', function () {
-            const toAccountGroup = document.getElementById('toAccountGroup');
-            toAccountGroup.style.display = this.value === 'TRANSFER' ? 'block' : 'none';
-        });
+        function atualizarCampos() {
+            const op = operationSelect.value;
+            valueGroup.style.display = op === 'BALANCE' ? 'none' : 'block';
+            toAccountGroup.style.display = op === 'TRANSFER' ? 'block' : 'none';
+        }
 
-        // Esconde o texto padrão e mostra o resultado quando chegar resposta
+        atualizarCampos();
+
+        operationSelect.addEventListener('change', atualizarCampos);
+
         const observer = new MutationObserver(function () {
             const status = document.getElementById('resStatus').textContent;
             if (status && status !== '—') {
