@@ -1,84 +1,108 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gábio Bank - Cliente GBTP</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
+    <div class="wrap">
 
-        <!-- Cabeçalho -->
-        <div class="header">
-            <h1>Gábio Bank</h1>
-            <p>Gabio Bank Transaction Protocol</p>
-        </div>
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Gábio Bank</div>
+            <div class="sidebar-sub">Gabio Bank Transaction Protocol</div>
+            <nav class="nav">
+                <div class="nav-item active">Transações</div>
+                <div class="nav-item">Saldo</div>
+            </nav>
+        </aside>
 
-        <!-- Status da conexão -->
-        <div class="connection-status" id="connectionStatus">
-            <div class="status-dot"></div>
-            <span id="connectionText">Conectando ao servidor...</span>
-        </div>
+        <!-- Conteúdo principal -->
+        <main class="main">
+            <div class="page-title">Nova transação</div>
+            <div class="page-sub">Preencha os dados e envie via protocolo GBTP</div>
 
-        <!-- Formulário -->
-        <div id="form-container">
-            <div class="form-group">
-                <label for="operation">Operação:</label>
-                <select id="operation">
-                    <option value="BALANCE">Consultar Saldo</option>
-                    <option value="DEPOSIT">Depósito</option>
-                    <option value="WITHDRAW">Saque</option>
-                    <option value="TRANSFER">Transferência</option>
-                </select>
+            <!-- Formulário -->
+            <div class="form-card">
+
+                <div class="field">
+                    <label for="operation">Operação</label>
+                    <select id="operation">
+                        <option value="BALANCE">Consultar Saldo</option>
+                        <option value="DEPOSIT">Depósito</option>
+                        <option value="WITHDRAW">Saque</option>
+                        <option value="TRANSFER">Transferência</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="field">
+                        <label for="accountId">ID da Conta</label>
+                        <input type="text" id="accountId" placeholder="Ex: 1001">
+                    </div>
+                    <div class="field">
+                        <label for="value">Valor (R$)</label>
+                        <input type="number" id="value" placeholder="0.00" value="0" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Campo destino: só aparece em Transferência -->
+                <div class="field" id="toAccountGroup">
+                    <label for="toAccountId">ID da Conta Destino</label>
+                    <input type="text" id="toAccountId" placeholder="Ex: 1002">
+                </div>
+
+                <button id="sendBtn">Enviar operação</button>
+
             </div>
 
-            <div class="form-group">
-                <label for="accountId">ID da Conta:</label>
-                <input type="text" id="accountId" placeholder="Ex: 1001">
+            <!-- Área de resultado -->
+            <div class="result-card">
+                <div id="resultDefault" class="result-text">O resultado da operação aparecerá aqui</div>
+                <div id="resultContent" class="result-content">
+                    <div class="result-row">
+                        <span class="result-label">Status</span>
+                        <span id="resStatus" class="result-value">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Saldo</span>
+                        <span class="result-value">R$ <span id="resBalance">—</span></span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Detalhe</span>
+                        <span id="resMessage" class="result-value">—</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Campo destino: só aparece em Transferência -->
-            <div class="form-group" id="toAccountGroup">
-                <label for="toAccountId">ID da Conta Destino:</label>
-                <input type="text" id="toAccountId" placeholder="Ex: 1002">
-            </div>
-
-            <div class="form-group">
-                <label for="value">Valor (R$):</label>
-                <input type="number" id="value" placeholder="Ex: 100.00" value="0" min="0" step="0.01">
-            </div>
-
-            <button id="sendBtn">Enviar Operação</button>
-        </div>
-
-        <!-- Área de Resposta -->
-        <div class="response">
-            <h3>Resposta do Servidor</h3>
-            <p><strong>Status:</strong> <span id="resStatus">-</span></p>
-            <p><strong>Mensagem:</strong> <span id="resMessage">-</span></p>
-            <p><strong>Saldo:</strong> R$ <span id="resBalance">-</span></p>
-        </div>
-
+        </main>
     </div>
 
     <!-- Script compilado do TypeScript -->
     <script src="dist/main.js" type="module"></script>
 
-    <!-- Mostrar/esconder campo destino e status de conexão -->
+    <!-- Mostrar/esconder campo destino -->
     <script>
-        // Mostra o campo "Conta Destino" só quando a operação é TRANSFER
+        // Esconde o campo destino por padrão
+        document.getElementById('toAccountGroup').style.display = 'none';
+
+        // Mostra só quando a operação for TRANSFER
         document.getElementById('operation').addEventListener('change', function () {
             const toAccountGroup = document.getElementById('toAccountGroup');
-            if (this.value === 'TRANSFER') {
-                toAccountGroup.classList.add('visible');
-            } else {
-                toAccountGroup.classList.remove('visible');
+            toAccountGroup.style.display = this.value === 'TRANSFER' ? 'block' : 'none';
+        });
+
+        // Esconde o texto padrão e mostra o resultado quando chegar resposta
+        const observer = new MutationObserver(function () {
+            const status = document.getElementById('resStatus').textContent;
+            if (status && status !== '—') {
+                document.getElementById('resultDefault').style.display = 'none';
+                document.getElementById('resultContent').style.display = 'flex';
             }
         });
+        observer.observe(document.getElementById('resStatus'), { childList: true, subtree: true, characterData: true });
     </script>
 </body>
-
 </html>
